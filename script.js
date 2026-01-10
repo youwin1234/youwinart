@@ -12,6 +12,7 @@ const track = document.getElementById("image-track");
 if (track) {
 	let currentEnlarged = null;
 	let _scrollPos = 0;
+    let enlargedClone = null;
 
 	// Create overlay
 	const overlay = document.createElement('div');
@@ -41,13 +42,21 @@ if (track) {
 			document.body.style.left = '0';
 			document.body.style.right = '0';
 
-			img.classList.add('is-enlarged');
+			// Create a cloned enlarged image inside the overlay so it sits above
+			// the overlay background and avoids stacking-context issues.
+			enlargedClone = img.cloneNode(true);
+			enlargedClone.classList.add('is-enlarged');
+			overlay.appendChild(enlargedClone);
 			overlay.style.display = 'block';
 		}
 
 		function closeImage() {
 			if (!currentEnlarged) return;
-			currentEnlarged.classList.remove('is-enlarged');
+			// remove cloned enlarged image from overlay
+			if (enlargedClone && enlargedClone.parentNode === overlay) {
+				enlargedClone.parentNode.removeChild(enlargedClone);
+				enlargedClone = null;
+			}
 			currentEnlarged = null;
 			overlay.style.display = 'none';
 
